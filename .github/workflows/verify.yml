@@ -1,0 +1,21 @@
+name: Build and verify
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compiler version
+        run: c++ --version
+      - name: Build and check
+        run: |
+          cmake -S . -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure
+          printf 'freq 440
+          render test.wav
+          quit
+          ' | ./build/synth
+          python3 tests/check_wav.py test.wav
